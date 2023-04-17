@@ -1,16 +1,24 @@
 import { Switch } from "antd";
 import { useField } from "formik";
+import "assets/style/components/field/customInput.scss";
 
-const switchRadio = ({ label, ...props }) => {
-  const [field, meta] = useField(props);
-  console.log(field);
+const index = (props) => {
+  const {
+    label,
+    field,
+    form: { setFieldValue },
+  } = props;
 
   return (
-    <>
-      <label>{label}</label>
-      <br />
-      <Switch {...props} />
-    </>
+    <div>
+      {label ? <h2 className="text-sm">{label}</h2> : null}
+      <Switch
+        name={field.name}
+        checked={field.value}
+        onChange={(e) => setFieldValue(field.name, e ? 1 : 0)}
+      />
+    </div>
   );
 };
-export default switchRadio;
+
+export default index;

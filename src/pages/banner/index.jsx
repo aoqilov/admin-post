@@ -3,10 +3,11 @@ import React, { useState } from "react";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { Form, Formik } from "formik";
+import { Field, Form, Formik } from "formik";
 import CustomInput from "./form/CustomInput";
 import { useSelector } from "react-redux";
 import { get } from "lodash";
+import { Fields } from "components";
 const index = () => {
   // query client
   const queryClient = useQueryClient();
@@ -145,6 +146,7 @@ const index = () => {
         </Button>
       </div>
       <Modal
+        key={get(open, "editData.id")}
         title="form post"
         open={open.window}
         footer={false}
@@ -168,12 +170,14 @@ const index = () => {
                   type="text"
                   name="name_uz"
                   placeholder="enter your name"
+                  component={Fields.CustomInput}
                 />
                 <CustomInput
                   label={"enter description_uz:"}
                   type="text"
                   name="description_uz"
                   placeholder="enter description"
+                  component={Fields.CustomInput}
                 />
                 <div className="btn__box">
                   <Button onClick={() => setOpen({ window: false })}>

@@ -7,6 +7,7 @@ import { get } from "lodash";
 import React from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import storage from "services/storage";
 import { signIn } from "store/auth";
 
 const index = () => {
@@ -17,8 +18,9 @@ const index = () => {
     mutationFn: (value) => {
       return axios.post("http://api.test.uz/api/v1/admin/user/sign-in", value);
     },
-    onSuccess: (value) => {
-      dispatch(signIn(get(value, "data.data")));
+    onSuccess: (data) => {
+      storage.set("token", get(data, "data.data.token"));
+      dispatch(signIn(get(data, "data.data")));
       navigate("/");
     },
   });

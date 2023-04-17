@@ -1,27 +1,30 @@
 import { Input } from "antd";
-import TextArea from "antd/es/input/TextArea";
+const { TextArea } = Input;
 import { useField } from "formik";
 import React from "react";
+import "assets/style/components/field/customInput.scss";
 
-const CustomInput = ({ label, ...props }) => {
+const TextAreaHook = ({ label, ...props }) => {
   const [field, meta] = useField(props);
   return (
     <>
       <div className="input__boxx my-3">
         <label>{label}</label>
         <TextArea
-          showCount
-          maxLength={100}
+          {...field}
+          {...props}
           style={{
             height: 120,
             marginBottom: 24,
           }}
-          {...field}
-          {...props}
+          className={meta.error && meta.touched ? "input_error" : "input"}
         />
+        {meta.error && meta.touched && (
+          <p className="error__down">{meta.error}</p>
+        )}
       </div>
     </>
   );
 };
 
-export default CustomInput;
+export default TextAreaHook;

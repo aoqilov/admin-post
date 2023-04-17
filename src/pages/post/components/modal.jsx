@@ -1,43 +1,30 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button, Modal, Switch, notification } from "antd";
 import axios from "axios";
-import CustomInput from "components/field/customInput/CustomHook";
-import Textarea from "components/field/customInput/Textarea";
+import * as Yup from "yup";
+import { Fields } from "components";
 import { Field, Form, Formik } from "formik";
 import { useSelector } from "react-redux";
-import { get } from "lodash";
-
+import { get, truncate } from "lodash";
+import { useState } from "react";
+import UsePost from "crud/usePost/usePost";
 const modal = ({ isOpen, setIsOpen }) => {
   const queryClient = useQueryClient();
 
   // token
   const { token } = useSelector((state) => get(state, "auth"));
 
+  const [isPosted, setIsPosted] = useState(false);
   // post
-  const mutation = useMutation({
-    mutationFn: (value) => {
-      return axios.post("http://api.test.uz/api/v1/admin/posts?_l=uz", value, {
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: "post" });
-      api.success({
-        message: `Succes`,
-        description: "all ready",
-      });
-      setIsOpen({
-        window: false,
-      });
-    },
-    onError: () => {
-      api.success({
-        message: `Error`,
-        description: "error",
-      });
-    },
+  const { mutate: postMutation, isSuccess } = UsePost({
+    url: "/posts?_l=uz",
+    queryKey: "post",
+  });
+
+  const validationSchema = Yup.object({
+    title: Yup.string().required("required"),
+    description: Yup.string().required("required"),
+    content: Yup.string().required("required"),
   });
 
   const [api, contextHolder] = notification.useNotification();
@@ -45,52 +32,45 @@ const modal = ({ isOpen, setIsOpen }) => {
     <>
       {contextHolder}
       <Modal
-        title={isOpen.file ? "update" : "create"}
+        key={get(isOpen, "file.id")}
+        title={isOpen.file ? "Update" : "Create"}
         open={isOpen.window}
-        onCancel={() => setIsOpen({ window: false })}
+        onCancel={() => setIsOpen({ window: false, file: null })}
         footer={false}
       >
         <Formik
           initialValues={{
-            title: get(isOpen, "file", ""),
-            description: get(isOpen, "file", ""),
-            content: get(isOpen, "file", ""),
+            title: get(isOpen, "file.title"),
+            description: get(isOpen, "file.description"),
+            content: get(isOpen, "file.content"),
+            status: 1,
+          }}
+          validationSchema={validationSchema}
+          onSubmit={(value, { resetForm }) => {
+            postMutation(value);
+            if (isSuccess) {
+              setIsOpen({ window: false });
+              return resetForm();
+            }
           }}
         >
-          {({ values }) => {
-            console.log("-------------");
-            console.log(values);
+          {({ handleSubmit }) => {
             return (
               <Form>
-                <CustomInput name="title" label="title" />
-                <CustomInput name="description" label="description" />
-                <Textarea name="content" label={"content"} />
-                <Field name="status">
-                  {({ field }) => {
-                    return (
-                      <>
-                        <label>status</label>
-                        <br />
-                        <Switch
-                          {...field}
-                          checked={values.status}
-                          onChange={(value) => {
-                            field.onChange({
-                              target: {
-                                name: field.name,
-                                value: value,
-                              },
-                            });
-                          }}
-                        />
-                      </>
-                    );
-                  }}
-                </Field>
+                <Fields.CustomInput name="title" label="title" />
+                <Fields.CustomInput name="description" label="description" />
+                <Fields.TextAreaHook name="content" label="content" />
+                <Field
+                  name="status"
+                  label="status"
+                  component={Fields.SwitchCustom}
+                />
+
                 <div className="form__btn text-right">
                   <Button
                     type="primary"
-                    onClick={() => mutation.mutate(values)}
+                    htmlType="submit"
+                    onClick={() => handleSubmit}
                   >
                     submit
                   </Button>

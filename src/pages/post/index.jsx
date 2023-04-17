@@ -1,138 +1,70 @@
 // antd
-import { Button, Table, Switch, Popconfirm } from "antd";
+import {
+  Button,
+  Table,
+  Switch,
+  Popconfirm,
+  Tooltip,
+  notification,
+  Popover,
+  message,
+} from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import React, { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { get } from "lodash";
+import { get, truncate } from "lodash";
 import axios from "axios";
 import Modal from "pages/post/components/modal";
 import { useSelector } from "react-redux";
-
+import useGet from "crud/useGet/useGet";
+import UseDelete from "crud/useDelete/UseDelete";
 const index = () => {
   const queryClient = useQueryClient();
 
   // token
   const { token } = useSelector((state) => get(state, "auth"));
-  // modal
+  // ///////////////////////////////////////---------------------- modal[OPEN]
   const [isOpen, setIsOpen] = useState({
     window: false,
     file: null,
   });
 
-  // table switch
+  // //////////////////////////////////////----------------------  DELETE
 
-  // delete
-  const { mutate: deleteHandler } = useMutation({
-    mutationFn: (id) => {
-      axios.delete(`http://api.test.uz/api/v1/admin/posts/${id}`, {
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
+  const { mutate: deleteHandler } = UseDelete({
+    url: "/posts",
+    queryKey: ["post"],
+  });
+  // /////////////////////////////////////////----------------------  GET
+  const { data, isFetched, isLoading } = useGet({
+    queryKey: ["post"],
+    url: `/posts?_l=uz&sort=id&_t=${new Date().getTime()}`,
+  });
+  const [api, contextHolder] = notification.useNotification();
+
+  // ////////////////////////////////////////-----------------------------  PUT-(SWITCH)
+  const { mutate: statusHandler } = useMutation({
+    mutationFn: ({ id, status }) => {
+      console.log(status);
+      return axios.put(
+        `http://api.test.uz/api/v1/admin/posts/updateStatus/${id}?_l=uz`,
+        { status },
+        {
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+        }
+      );
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: "post" });
+      message.success("success");
+      return queryClient.invalidateQueries({ queryKey: ["post"] });
     },
   });
 
-  //   get
-  const fetchPost = () => {
-    return axios.get(
-      `http://api.test.uz/api/v1/admin/posts?_l=uz&sort=id&_t=${new Date().getTime()}`,
-      {
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-      }
-    );
-  };
-
-  const { data, isLoading } = useQuery({
-    queryKey: ["post"],
-    queryFn: fetchPost,
-  });
-  console.log(get(data, "data.data", "errrorrrrr"));
-
-  // data headerColumns
-  const tableHead = [
-    {
-      key: "1",
-      title: "id",
-      dataIndex: "id",
-    },
-    {
-      key: "2",
-      title: "title",
-      dataIndex: "title",
-    },
-    {
-      key: "3",
-      title: "description",
-      dataIndex: "description",
-    },
-    {
-      key: "4",
-      title: "content",
-      dataIndex: "content",
-    },
-    {
-      key: "5",
-      title: "status",
-      dataIndex: "status",
-      render: () => {
-        return (
-          <>
-            <Switch defaultChecked />
-          </>
-        );
-      },
-    },
-    {
-      key: "6",
-      title: "actions",
-      dataIndex: "actions",
-      render: (value, row) => {
-        return (
-          <>
-            <div className=" flex gap-4">
-              <Popconfirm
-                title="Delete the task"
-                description="Are you sure to delete this task?"
-                okText="Yes"
-                cancelText="No"
-              >
-                <Button
-                  type="link"
-                  onClick={() => {
-                    deleteHandler(get(row, "id"));
-                  }}
-                  style={{
-                    backgroundColor: "red",
-                  }}
-                  icon={<DeleteOutlined style={{ color: "white" }} />}
-                ></Button>
-              </Popconfirm>
-
-              <Button
-                onClick={() => {
-                  setIsOpen({
-                    window: true,
-                    file: row,
-                  });
-                }}
-                style={{
-                  backgroundColor: "orange",
-                }}
-                icon={<EditOutlined style={{ color: "black" }} />}
-              ></Button>
-            </div>
-          </>
-        );
-      },
-    },
-  ];
   return (
     <div className=" p-4">
+      {contextHolder}
       <h2 className=" text-center my-2">Post</h2>
       <div className="add__btn-box text-right">
         <Button
@@ -146,7 +78,108 @@ const index = () => {
       <Modal isOpen={isOpen} setIsOpen={setIsOpen}></Modal>
 
       <Table
-        columns={tableHead}
+        rowKey={"id"}
+        columns={[
+          {
+            key: "1",
+            title: "id",
+            dataIndex: "id",
+            width: "5%",
+          },
+          {
+            key: "2",
+            title: "title",
+            dataIndex: "title",
+            width: "15%",
+          },
+          {
+            key: "3",
+            title: "description",
+            dataIndex: "description",
+            width: "15%",
+          },
+          {
+            key: "4",
+            title: "Content",
+            dataIndex: "content",
+            width: "40%",
+            render: (value) => {
+              return value.length > 50 ? (
+                <Popover title={value}>
+                  {truncate(value, { length: 50, omission: "..." })}
+                </Popover>
+              ) : (
+                value
+              );
+            },
+          },
+          {
+            key: "5",
+            title: "status",
+            dataIndex: "status",
+            width: "10%",
+            className: " text-center",
+            render: (value, row) => {
+              return (
+                <Switch
+                  loading={!isFetched}
+                  checked={value ? true : false}
+                  onChange={(e) =>
+                    statusHandler({ id: get(row, "id"), status: e ? 1 : 0 })
+                  }
+                />
+              );
+            },
+          },
+          {
+            key: "6",
+            title: "actions",
+            dataIndex: "actions",
+            width: "20%",
+            render: (value, row) => {
+              return (
+                <>
+                  <div className=" flex gap-4">
+                    <Popconfirm
+                      placement="leftBottom"
+                      title="Delete the task"
+                      description="Are you sure to delete this task?"
+                      okText="Yes"
+                      cancelText="No"
+                      onConfirm={() => {
+                        deleteHandler(get(row, "id"));
+                      }}
+                    >
+                      <Tooltip title="click to delete" mouseEnterDelay={0.3}>
+                        <Button
+                          type="link"
+                          style={{
+                            backgroundColor: "red",
+                          }}
+                          icon={<DeleteOutlined style={{ color: "white" }} />}
+                        ></Button>
+                      </Tooltip>
+                    </Popconfirm>
+                    <Tooltip title="click to edit" mouseEnterDelay={0.3}>
+                      <Button
+                        onClick={() => {
+                          setIsOpen({
+                            window: true,
+                            file: row,
+                          });
+                        }}
+                        style={{
+                          backgroundColor: "orange",
+                        }}
+                        icon={<EditOutlined style={{ color: "black" }} />}
+                      ></Button>
+                    </Tooltip>
+                  </div>
+                </>
+              );
+            },
+          },
+        ]}
         dataSource={get(data, "data.data")}
         loading={isLoading}
       />

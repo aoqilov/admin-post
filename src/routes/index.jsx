@@ -28,11 +28,11 @@ const privateRoutes = [
     element: <Home />,
   },
   {
-    path: "/blocked",
+    path: "blocked",
     element: <Blocked />,
   },
   {
-    path: "/about",
+    path: "about",
     element: <About />,
     children: [
       {
@@ -46,7 +46,7 @@ const privateRoutes = [
     ],
   },
   {
-    path: "/contact",
+    path: "contact",
     element: <Contact />,
   },
   {
