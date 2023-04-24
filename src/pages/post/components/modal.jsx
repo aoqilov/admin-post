@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Button, Modal, Switch, notification } from "antd";
+import { Button, Modal, Switch, message, notification } from "antd";
 import axios from "axios";
 import * as Yup from "yup";
 import { Fields } from "components";
@@ -9,16 +9,26 @@ import { get, truncate } from "lodash";
 import { useState } from "react";
 import UsePost from "crud/usePost/usePost";
 const modal = ({ isOpen, setIsOpen }) => {
-  const queryClient = useQueryClient();
-
-  // token
-  const { token } = useSelector((state) => get(state, "auth"));
-
-  const [isPosted, setIsPosted] = useState(false);
   // post
-  const { mutate: postMutation, isSuccess } = UsePost({
-    url: "/posts?_l=uz",
-    queryKey: "post",
+  const { mutate: postMutation } = UsePost({
+    url: `${
+      get(isOpen, "file") ? `posts/${get(isOpen, "file.id")}` : "/posts"
+    }`,
+    queryKeyName: ["post"],
+    method: get(isOpen, "file") ? "put" : "post",
+    params: {
+      extra: { _l: "uz" },
+    },
+    onSuccess: (data) => {
+      api.success({
+        message: "success",
+        description: "posted",
+      });
+      setIsOpen({
+        window: false,
+        file: null,
+      });
+    },
   });
 
   const validationSchema = Yup.object({
@@ -46,12 +56,8 @@ const modal = ({ isOpen, setIsOpen }) => {
             status: 1,
           }}
           validationSchema={validationSchema}
-          onSubmit={(value, { resetForm }) => {
-            postMutation(value);
-            if (isSuccess) {
-              setIsOpen({ window: false });
-              return resetForm();
-            }
+          onSubmit={(values, { resetForm }) => {
+            postMutation({ values, resetForm });
           }}
         >
           {({ handleSubmit }) => {

@@ -10,6 +10,10 @@ const AboutCompany = lazy(() => import("pages/about/company"));
 const Contact = lazy(() => import("pages/contact"));
 const Banner = lazy(() => import("pages/banner"));
 const Poost = lazy(() => import("pages/post"));
+// page
+const Page = lazy(() => import("pages/pagge/index"));
+const PageCreate = lazy(() => import("pages/pagge/components/create"));
+const PageUpdate = lazy(() => import("pages/pagge/components/pupdate"));
 
 const authRoutes = [
   {
@@ -45,10 +49,7 @@ const privateRoutes = [
       },
     ],
   },
-  {
-    path: "contact",
-    element: <Contact />,
-  },
+
   {
     path: "banner",
     element: <Banner />,
@@ -56,6 +57,20 @@ const privateRoutes = [
   {
     path: "poost",
     element: <Poost />,
+  },
+  {
+    path: "pages",
+    element: <Page />,
+    children: [
+      {
+        path: "pages/create",
+        element: <PageCreate />,
+      },
+      {
+        path: "pages/update/:id",
+        element: <PageUpdate />,
+      },
+    ],
   },
 ];
 

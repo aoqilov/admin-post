@@ -2,6 +2,7 @@ import {
   LaptopOutlined,
   UserOutlined,
   FileDoneOutlined,
+  FolderOpenOutlined,
 } from "@ant-design/icons";
 
 const menus = [
@@ -32,11 +33,7 @@ const menus = [
       },
     ],
   },
-  {
-    key: "contact",
-    icon: <UserOutlined />,
-    label: "Contact",
-  },
+
   {
     key: "banner",
     icon: <UserOutlined />,
@@ -46,6 +43,11 @@ const menus = [
     key: "poost",
     icon: <FileDoneOutlined />,
     label: "Post",
+  },
+  {
+    key: "pages",
+    icon: <FolderOpenOutlined />,
+    label: "Page",
   },
 ];
 

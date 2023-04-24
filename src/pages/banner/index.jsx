@@ -65,36 +65,36 @@ const index = () => {
     },
   ];
 
-  // delete
+  // ---------------------------------------------------------------------------------delete
   const { mutate: deleteHandler } = useMutation({
     mutationFn: (id) => {
-      axios.delete(`http://api.test.uz/api/v1/admin/post/${id}`, {
+      axios.delete(`http://api.test.uz/api/v1/admin/banner/${id}`, {
         headers: {
           Authorization: "Bearer " + token,
         },
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: "post" });
+      queryClient.invalidateQueries({ queryKey: ["banner"] });
     },
     onError: (error) => {
       console.log(error);
     },
   });
 
-  // notification
+  // ---------------------------------------------------------------------------------- notification
   const [api, contextHolder] = notification.useNotification();
 
-  // modal
+  // --------------------------------------------------------------------------------------modal
   const [open, setOpen] = useState({
     window: false,
     editData: null,
   });
 
-  // post
+  // -------------------------------------------------------------------------------------post
   const mutation = useMutation({
     mutationFn: (value) => {
-      return axios.post(`http://api.test.uz/api/v1/admin/banners`, value, {
+      return axios.post(`http://api.test.uz/api/v1/admin/banner?_l=uz`, value, {
         headers: {
           Authorization: "Bearer " + token,
         },
@@ -116,7 +116,7 @@ const index = () => {
     },
   });
 
-  // get
+  // ----------------------------------------------------------------------------------------get
 
   const fetchBanner = () => {
     return axios.get("http://api.test.uz/api/v1/admin/banners", {

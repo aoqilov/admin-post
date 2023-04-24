@@ -16,8 +16,9 @@ import { get, truncate } from "lodash";
 import axios from "axios";
 import Modal from "pages/post/components/modal";
 import { useSelector } from "react-redux";
-import useGet from "crud/useGet/useGet";
 import UseDelete from "crud/useDelete/UseDelete";
+import UseGet from "crud/useGet";
+import UsePut from "crud/UsePut/UsePut";
 const index = () => {
   const queryClient = useQueryClient();
 
@@ -29,42 +30,58 @@ const index = () => {
     file: null,
   });
 
-  // //////////////////////////////////////----------------------  DELETE
+  // ////////---  DELETE
 
   const { mutate: deleteHandler } = UseDelete({
     url: "/posts",
-    queryKey: ["post"],
-  });
-  // /////////////////////////////////////////----------------------  GET
-  const { data, isFetched, isLoading } = useGet({
-    queryKey: ["post"],
-    url: `/posts?_l=uz&sort=id&_t=${new Date().getTime()}`,
-  });
-  const [api, contextHolder] = notification.useNotification();
-
-  // ////////////////////////////////////////-----------------------------  PUT-(SWITCH)
-  const { mutate: statusHandler } = useMutation({
-    mutationFn: ({ id, status }) => {
-      console.log(status);
-      return axios.put(
-        `http://api.test.uz/api/v1/admin/posts/updateStatus/${id}?_l=uz`,
-        { status },
-        {
-          headers: {
-            Authorization: "Bearer " + token,
-          },
-        }
-      );
-    },
+    queryKeyName: ["post"],
     onSuccess: () => {
-      message.success("success");
-      return queryClient.invalidateQueries({ queryKey: ["post"] });
+      message.info("delete");
     },
   });
+
+  // ----  GET
+  const { data, isLoading } = UseGet({
+    queryKeyName: ["post"],
+    url: "/posts",
+    params: {
+      extra: {
+        _l: "uz",
+      },
+    },
+    onSuccess: (data) => {},
+  });
+
+  // /////////-------------------  PUT-(SWITCH)
+  const { mutate: statusHandler, isLoading: statusLoading } = UsePut({
+    url: "posts/updateStatus",
+    queryKeyName: ["post"],
+    params: {
+      extra: { _l: "uz" },
+    },
+    onSuccess: () => {},
+  });
+
+  // mutationFn: ({ id, status }) => {
+  //   console.log(status);
+  //   return axios.put(
+  //     `http://api.test.uz/api/v1/admin/posts/updateStatus/${id}?_l=uz`,
+  //     { status },
+  //     {
+  //       headers: {
+  //         Authorization: "Bearer " + token,
+  //       },
+  //     }
+  //   );
+  // },
+  // onSuccess: () => {
+  //   message.success("success");
+  //   return queryClient.invalidateQueries({ queryKey: ["post"] });
+  // },
 
   return (
     <div className=" p-4">
-      {contextHolder}
+      {/* {contextHolder} */}
       <h2 className=" text-center my-2">Post</h2>
       <div className="add__btn-box text-right">
         <Button
@@ -122,7 +139,7 @@ const index = () => {
             render: (value, row) => {
               return (
                 <Switch
-                  loading={!isFetched}
+                  loading={statusLoading}
                   checked={value ? true : false}
                   onChange={(e) =>
                     statusHandler({ id: get(row, "id"), status: e ? 1 : 0 })

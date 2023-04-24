@@ -1,3 +1,5 @@
 import storage from "./storage";
+import api from "./api";
+import queryBuilder from "./querybuilder";
 
-export default {storage}
+export default { queryBuilder, storage, api };

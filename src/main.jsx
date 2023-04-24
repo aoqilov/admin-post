@@ -5,7 +5,6 @@ import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 import { persister, store } from "store";
 import { PersistGate } from "redux-persist/integration/react";
-
 import {
   QueryClient,
   QueryClientProvider,
@@ -13,7 +12,16 @@ import {
 } from "@tanstack/react-query";
 import "assets/style/main.css";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      refetchOnMount: true,
+      retryDelay: (index) => Math.min(1000 * 2 ** index, 30000),
+      retry: 2,
+    },
+  },
+});
 import "./assets/style/main.css";
 import "antd/es/style/reset.css";
 

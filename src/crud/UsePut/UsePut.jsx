@@ -1,29 +1,34 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { message } from "antd";
 import axios from "axios";
+import api from "services/api";
+import queryBuilder from "services/querybuilder";
 import storage from "services/storage";
 const token = storage.get("token");
 
-const UsePut = ({ url, queryKey, id }) => {
+const UsePut = ({
+  url,
+  queryKeyName,
+  params,
+  onSuccess = () => {},
+  onError = () => {},
+}) => {
   const queryClient = useQueryClient();
 
   const mainMutate = useMutation({
-    mutationFn: ({ id, status }) => {
-      return axios.put(
-        `http://api.test.uz/api/v1/admin/posts/updateStatus/${id}?_l=uz`,
-        { status },
-        {
-          headers: {
-            Authorization: "Bearer " + token,
-          },
-        }
-      );
+    mutationKey: queryKeyName,
+    mutationFn: async (values) => {
+      return await api
+        .put(queryBuilder(url, params), values)
+        .then(() => resetForm());
     },
     onSuccess: (value) => {
+      onSuccess(value);
       message.success(value.statusText);
-      queryClient.invalidateQueries({ queryKey: queryKey });
+      queryClient.invalidateQueries({ queryKey: queryKeyName });
     },
     onError: (error) => {
+      onError(error);
       message.error(error.message);
     },
   });

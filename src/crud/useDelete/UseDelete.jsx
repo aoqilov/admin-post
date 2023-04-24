@@ -1,26 +1,27 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { message } from "antd";
-import axios from "axios";
-import storage from "services/storage";
-const token = storage.get("token");
+import api from "services/api";
 
-const UseDelete = ({ url, queryKey }) => {
+const UseDelete = ({
+  url,
+  queryKeyName,
+  onSuccess = () => {},
+  onError = () => {},
+}) => {
   const queryClient = useQueryClient();
 
   const mainMutate = useMutation({
-    mutationKey: queryKey,
+    mutationKey: queryKeyName,
     mutationFn: (id) => {
-      return axios.delete(`http://api.test.uz/api/v1/admin${url}/${id}`, {
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
+      return api.delete(`${url}/${id}`);
     },
     onSuccess: (value) => {
-      message.success(value.statusText);
-      queryClient.invalidateQueries({ queryKey: queryKey });
+      onSuccess(value);
+      message.destroy("deleteed");
+      queryClient.invalidateQueries({ queryKey: queryKeyName });
     },
     onError: (error) => {
+      onError(error);
       message.error(error.message);
     },
   });
