@@ -35,7 +35,6 @@ const index = () => {
       title: "actions",
       dataIndex: "actions",
       render: (value, row) => {
-        console.log(get(row, "id"));
         return (
           <div className=" flex gap-4">
             <Button

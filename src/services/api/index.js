@@ -3,7 +3,7 @@ import config from "config";
 import storage from "services/storage";
 
 const api = axios.create({
-  baseURL: "http://api.test.uz/api/v1/admin",
+  baseURL: "https://api.horunxon.uz/api/v1/admin",
   timeout: 3000,
 });
 

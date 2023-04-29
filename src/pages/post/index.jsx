@@ -19,6 +19,8 @@ import { useSelector } from "react-redux";
 import UseDelete from "crud/useDelete/UseDelete";
 import UseGet from "crud/useGet";
 import UsePut from "crud/UsePut/UsePut";
+import GetAll from "module/container/all";
+
 const index = () => {
   const queryClient = useQueryClient();
 
@@ -42,14 +44,14 @@ const index = () => {
 
   // ----  GET
   const { data, isLoading } = UseGet({
-    queryKeyName: ["post"],
-    url: "/posts",
-    params: {
-      extra: {
-        _l: "uz",
-      },
-    },
-    onSuccess: (data) => {},
+    // queryKeyName: ["post"],
+    // url: "/posts",
+    // params: {
+    //   extra: {
+    //     _l: "uz",
+    //   },
+    // },
+    // onSuccess: (data) => {},
   });
 
   // /////////-------------------  PUT-(SWITCH)
@@ -93,7 +95,18 @@ const index = () => {
         </Button>
       </div>
       <Modal isOpen={isOpen} setIsOpen={setIsOpen}></Modal>
-
+      <GetAll
+        url={"/posts"}
+        queryKeyName={["post"]}
+        params={{ extra: { _l: "uz" } }}
+        onSuccess={(baza) => {
+          console.log(baza);
+        }}
+      >
+        {({ items, data }) => {
+          console.log(items);
+        }}
+      </GetAll>
       <Table
         rowKey={"id"}
         columns={[
@@ -197,7 +210,7 @@ const index = () => {
             },
           },
         ]}
-        dataSource={get(data, "data.data")}
+        dataSource={items}
         loading={isLoading}
       />
     </div>

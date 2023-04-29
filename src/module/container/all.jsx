@@ -1,16 +1,9 @@
-import UseGet from "crud/useGet";
-import React from "react";
+import { useGet } from "crud/useGet";
 import { get } from "lodash";
+import React from "react";
 
-const all = ({ url, params, queryKeyName, onSuccess, onError, children }) => {
-  const data = UseGet({
-    url,
-    params,
-    queryKeyName,
-    onSuccess,
-    onError,
-  });
-  console.log(get(data, "data"));
+const all = ({ url, queryKey, params, onSuccess, onError, children }) => {
+  const data = useGet({ url, queryKey, params, onSuccess, onError });
   return children({
     items: get(data, "data.data.data"),
     meta: {

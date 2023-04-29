@@ -17,12 +17,11 @@ const usePost = ({
   const mainMutate = useMutation({
     mutationKey: queryKeyName,
     mutationFn: async ({ values, resetForm }) => {
-      return await api[method](queryBuilder(url, params), values).then(() =>
-        resetForm()
-      );
+      return await api[method](queryBuilder(url, params), values);
     },
-    onSuccess: (dataa) => {
-      onSuccess(dataa);
+    onSuccess: (data) => {
+      onSuccess(data);
+      console.log(data);
       queryClient.invalidateQueries({ queryKey: queryKeyName });
     },
     onError: (error) => {

@@ -5,14 +5,10 @@ import React, { useState } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { get } from "lodash";
-import { Field, Form, Formik } from "formik";
-import { Fields } from "components";
-import usePost from "crud/usePost/usePost";
 import * as Yup from "yup";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import UseDelete from "crud/useDelete/UseDelete";
-import UsePut from "crud/UsePut/UsePut";
-import Container from "module/container";
+import GetAll from "module/container/all";
 
 // function
 
@@ -38,7 +34,7 @@ const index = () => {
       >
         create
       </Button>
-      <Container
+      <GetAll
         url={"/pages"}
         queryKeyName={"pages"}
         params={{
@@ -47,7 +43,10 @@ const index = () => {
           extra: { _l: "uz" },
         }}
       >
-        {({ items, isLoading, meta }) => {
+        {({ items, isLoading, meta, data }) => {
+          console.log(items);
+          console.log("------------");
+          console.log(data);
           return (
             <>
               <div className=" text-center m-5">
@@ -95,7 +94,6 @@ const index = () => {
                       render: (value, row) => {
                         return (
                           <Switch
-                            // loading={statusLoading}
                             checked={value ? true : false}
                             onChange={(e) =>
                               statusHandler({
@@ -146,7 +144,7 @@ const index = () => {
             </>
           );
         }}
-      </Container>
+      </GetAll>
     </div>
   );
 };

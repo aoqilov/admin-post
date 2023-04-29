@@ -1,20 +1,19 @@
 import { Button, message } from "antd";
 //
-import ContainreOne from "module/container/ContainreOne";
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { get } from "lodash";
 import { Field, Form, Formik } from "formik";
 import { Fields } from "components";
 import { validationSchema } from "pages/pagge/schema/index";
-
+import GetOne from "module/container/ContainreOne";
 const pupdate = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   return (
     <div className="p-4">
       <Button onClick={() => navigate(-1)}>Orqaga</Button>
-      <ContainreOne
+      <GetOne
         url={`pages/${id}`}
         params={{
           extra: { _l: "uz" },
@@ -64,7 +63,7 @@ const pupdate = () => {
             </Formik>
           );
         }}
-      </ContainreOne>
+      </GetOne>
     </div>
   );
 };

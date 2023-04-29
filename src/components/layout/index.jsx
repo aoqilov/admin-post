@@ -5,12 +5,12 @@ import { useLocation } from "react-router-dom";
 
 const index = () => {
   const location = useLocation();
-  const blacklist = ["/pages/create", "/pages/update"];
+  const blackList = ["pages/create", "pages/update", "post/update"];
+  const aaa = blackList.some((item) => item.startsWith(location.pathname));
+
   return (
     <Layout className="h-screen overflow-y-hidden">
-      {!blacklist.some((item) => item.startsWith(location.pathname)) ? null : (
-        <Sidebar />
-      )}
+      {aaa ? null : <Sidebar />}
       <Content />
     </Layout>
   );
